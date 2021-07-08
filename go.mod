@@ -1,4 +1,4 @@
-module github.com/hashicorp/terraform-provider-scaffolding
+module github.com/Xtansia/terraform-provider-azdoext
 
 go 1.15
 
