@@ -14,7 +14,8 @@ description: |-
 
 ```terraform
 provider "azdoext" {
-  # example configuration here
+  org_service_url       = "https://dev.azure.com/..."
+  personal_access_token = "f6g..."
 }
 ```
 

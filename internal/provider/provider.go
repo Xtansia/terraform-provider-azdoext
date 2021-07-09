@@ -7,6 +7,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/Xtansia/terraform-provider-azdoext/internal/utils"
 )
 
 const (
@@ -20,18 +22,33 @@ func init() {
 	schema.DescriptionKind = schema.StringMarkdown
 	schema.SchemaDescriptionBuilder = func(s *schema.Schema) string {
 		desc := s.Description
+
 		if s.Default != nil {
 			desc += fmt.Sprintf(" Defaults to `%v`.", s.Default)
 		}
+
+		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
+			conflictFields := utils.Map(s.ConflictsWith, func (c string) string {
+				return fmt.Sprintf("**%s**", c)
+			})
+			desc += fmt.Sprintf(" Conflicts with %s.", utils.HumaniseList(conflictFields))
+		}
+
 		return strings.TrimSpace(desc)
 	}
 }
 
 func New(version string) func() *schema.Provider {
+	rn := func (resourceName string) string {
+		return fmt.Sprintf("azdoext_%s", resourceName)
+	}
+
 	return func() *schema.Provider {
 		p := &schema.Provider{
 			DataSourcesMap: map[string]*schema.Resource{},
-			ResourcesMap: map[string]*schema.Resource{},
+			ResourcesMap: map[string]*schema.Resource{
+				rn("secure_file"): resourceSecureFile(),
+			},
 			Schema: map[string]*schema.Schema{
 				argOrgServiceUrl: {
 					Description: "The url of the Azure DevOps instance which should be used. Can also be set via the `" + envOrgServiceUrl + "` environment variable.",

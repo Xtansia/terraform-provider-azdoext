@@ -21,7 +21,9 @@ func TestProvider(t *testing.T) {
 }
 
 func TestProvider_HasChildResources(t *testing.T) {
-	expectedResources := []string{}
+	expectedResources := []string{
+		"azdoext_secure_file",
+	}
 
 	resources := New("dev")().ResourcesMap
 	require.Equal(t, len(expectedResources), len(resources), "There are an unexpected number of registered resources")
@@ -80,7 +82,7 @@ func TestProvider_SchemaIsValid(t *testing.T) {
 	}
 }
 
-func testAccPreCheck(t *testing.T) {
+func preCheck(t *testing.T) {
 	if err := os.Getenv(envOrgServiceUrl); err == "" {
 		t.Fatal(envOrgServiceUrl + " must be set for acceptance tests")
 	}
