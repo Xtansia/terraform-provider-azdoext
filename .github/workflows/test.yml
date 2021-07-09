@@ -69,7 +69,7 @@ jobs:
         AZDO_PERSONAL_ACCESS_TOKEN: ${{ secrets.AZDO_PERSONAL_ACCESS_TOKEN }}
         AZDO_TEST_PROJECT_ID: ${{ secrets.AZDO_TEST_PROJECT_ID }}
       run: |
-        go test -v -covermode=count -coverprofile=coverage.out
+        go test -v -covermode=count -coverprofile=coverage.out ./...
     - name: Convert coverage.out to coverage.lcov
       uses: jandelgado/gcov2lcov-action@v1.0.8
     - name: Coveralls
