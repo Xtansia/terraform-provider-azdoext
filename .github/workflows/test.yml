@@ -97,24 +97,7 @@ jobs:
         AZDO_PERSONAL_ACCESS_TOKEN: ${{ secrets.AZDO_PERSONAL_ACCESS_TOKEN }}
         AZDO_TEST_PROJECT_ID: ${{ secrets.AZDO_TEST_PROJECT_ID }}
       run: |
-        go test -v -covermode=count -coverprofile=coverage.out ./...
-    - name: Convert coverage.out to coverage.lcov
-      uses: jandelgado/gcov2lcov-action@v1.0.8
-    - name: Coveralls
-      uses: coverallsapp/github-action@1.1.3
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: coverage.lcov
-        flag-name: run-${{ matrix.platform }}-go${{ matrix.go-version }}-tf${{ matrix.terraform-version }}
-        parallel: true
-
-  finish:
-    name: Finalise Coverage
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@1.1.3
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        parallel-finished: true
+        go test -v -race -covermode=atomic -coverprofile=coverage.txt ./...
+    - name: Upload to Codecov
+      run: |
+        bash <(curl -s https://codecov.io/bash)
