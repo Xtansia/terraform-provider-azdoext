@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	argOrgServiceUrl = "org_service_url"
-	envOrgServiceUrl = "AZDO_ORG_SERVICE_URL"
+	argOrgServiceUrl       = "org_service_url"
+	envOrgServiceUrl       = "AZDO_ORG_SERVICE_URL"
 	argPersonalAccessToken = "personal_access_token"
 	envPersonalAccessToken = "AZDO_PERSONAL_ACCESS_TOKEN"
 )
@@ -29,7 +29,7 @@ func init() {
 		}
 
 		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
-			conflictFields := utils.Map(s.ConflictsWith, func (c string) string {
+			conflictFields := utils.Map(s.ConflictsWith, func(c string) string {
 				return fmt.Sprintf("**%s**", c)
 			})
 			desc += fmt.Sprintf(" Conflicts with %s.", utils.HumaniseList(conflictFields))
@@ -40,7 +40,7 @@ func init() {
 }
 
 func New(version string) func() *schema.Provider {
-	rn := func (resourceName string) string {
+	rn := func(resourceName string) string {
 		return fmt.Sprintf("azdoext_%s", resourceName)
 	}
 
@@ -53,15 +53,15 @@ func New(version string) func() *schema.Provider {
 			Schema: map[string]*schema.Schema{
 				argOrgServiceUrl: {
 					Description: "The url of the Azure DevOps instance which should be used. Can also be set via the `" + envOrgServiceUrl + "` environment variable.",
-					Type: schema.TypeString,
-					Optional: true,
+					Type:        schema.TypeString,
+					Optional:    true,
 					DefaultFunc: schema.EnvDefaultFunc(envOrgServiceUrl, nil),
 				},
 				argPersonalAccessToken: {
 					Description: "The personal access token which should be used. Can also be set via the `" + envPersonalAccessToken + "` environment variable.",
-					Type: schema.TypeString,
-					Sensitive: true,
-					Optional: true,
+					Type:        schema.TypeString,
+					Sensitive:   true,
+					Optional:    true,
 					DefaultFunc: schema.EnvDefaultFunc(envPersonalAccessToken, nil),
 				},
 			},
@@ -88,15 +88,15 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		if strings.EqualFold(orgServiceUrl, "") {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary: "Organisation service URL not set",
-				Detail: "The Azure DevOps organisation service URL must be set",
+				Summary:  "Organisation service URL not set",
+				Detail:   "The Azure DevOps organisation service URL must be set",
 			})
 		}
 		if strings.EqualFold(personalAccessToken, "") {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary: "Personal access token not set",
-				Detail: "The Azure DevOps personal access token must be set",
+				Summary:  "Personal access token not set",
+				Detail:   "The Azure DevOps personal access token must be set",
 			})
 		}
 
@@ -105,10 +105,10 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		}
 
 		options := client.ClientOptions{
-			OrganisationUrl: orgServiceUrl,
+			OrganisationUrl:     orgServiceUrl,
 			PersonalAccessToken: personalAccessToken,
-			ProviderVersion: version,
-			TerraformVersion: terraformVersion,
+			ProviderVersion:     version,
+			TerraformVersion:    terraformVersion,
 		}
 
 		clients, err := options.Clients(ctx)
@@ -116,7 +116,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary: "Error initialising Azure DevOps clients",
+				Summary:  "Error initialising Azure DevOps clients",
 			})
 			return nil, diags
 		}
