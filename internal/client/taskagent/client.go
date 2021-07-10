@@ -24,9 +24,9 @@ var (
 
 type Client interface {
 	DeleteSecureFile(context.Context, DeleteSecureFileArgs) error
-	GetSecureFile(context.Context, GetSecureFileArgs) (*taskagent.SecureFile, error)
-	UpdateSecureFile(context.Context, UpdateSecureFileArgs) (*taskagent.SecureFile, error)
-	UploadSecureFile(context.Context, UploadSecureFileArgs) (*taskagent.SecureFile, error)
+	GetSecureFile(context.Context, GetSecureFileArgs) (*SecureFile, error)
+	UpdateSecureFile(context.Context, UpdateSecureFileArgs) (*SecureFile, error)
+	UploadSecureFile(context.Context, UploadSecureFileArgs) (*SecureFile, error)
 }
 
 type ClientImpl taskagent.ClientImpl
@@ -65,7 +65,7 @@ type DeleteSecureFileArgs struct {
 	SecureFileId *uuid.UUID
 }
 
-func (client *ClientImpl) GetSecureFile(ctx context.Context, args GetSecureFileArgs) (*taskagent.SecureFile, error) {
+func (client *ClientImpl) GetSecureFile(ctx context.Context, args GetSecureFileArgs) (*SecureFile, error) {
 	if args.Project == nil || *args.Project == "" {
 		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Project"}
 	}
@@ -94,7 +94,7 @@ func (client *ClientImpl) GetSecureFile(ctx context.Context, args GetSecureFileA
 		return nil, err
 	}
 
-	var responseValue taskagent.SecureFile
+	var responseValue SecureFile
 	err = client.Client.UnmarshalBody(resp, &responseValue)
 	return &responseValue, err
 }
@@ -103,10 +103,10 @@ type GetSecureFileArgs struct {
 	Project               *string
 	SecureFileId          *uuid.UUID
 	IncludeDownloadTicket *bool
-	ActionFilter          *taskagent.SecureFileActionFilter
+	ActionFilter          *SecureFileActionFilter
 }
 
-func (client *ClientImpl) UpdateSecureFile(ctx context.Context, args UpdateSecureFileArgs) (*taskagent.SecureFile, error) {
+func (client *ClientImpl) UpdateSecureFile(ctx context.Context, args UpdateSecureFileArgs) (*SecureFile, error) {
 	if args.Project == nil || *args.Project == "" {
 		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Project"}
 	}
@@ -135,7 +135,7 @@ func (client *ClientImpl) UpdateSecureFile(ctx context.Context, args UpdateSecur
 		return nil, err
 	}
 
-	var responseValue taskagent.SecureFile
+	var responseValue SecureFile
 	err = client.Client.UnmarshalBody(resp, &responseValue)
 	return &responseValue, err
 }
@@ -143,11 +143,11 @@ func (client *ClientImpl) UpdateSecureFile(ctx context.Context, args UpdateSecur
 type UpdateSecureFileArgs struct {
 	Project      *string
 	SecureFileId *uuid.UUID
-	SecureFile   *taskagent.SecureFile
+	SecureFile   *SecureFile
 }
 
 func (client *ClientImpl) UploadSecureFile(ctx context.Context, args UploadSecureFileArgs) (
-	*taskagent.SecureFile, error,
+	*SecureFile, error,
 ) {
 	if args.Name == nil || *args.Name == "" {
 		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Name"}
@@ -155,7 +155,7 @@ func (client *ClientImpl) UploadSecureFile(ctx context.Context, args UploadSecur
 	if args.Project == nil || *args.Project == "" {
 		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Project"}
 	}
-	if args.Content == nil || len(*args.Content) == 0 {
+	if len(*args.Content) == 0 {
 		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Content"}
 	}
 
@@ -176,7 +176,7 @@ func (client *ClientImpl) UploadSecureFile(ctx context.Context, args UploadSecur
 		return nil, err
 	}
 
-	var responseValue taskagent.SecureFile
+	var responseValue SecureFile
 	err = client.Client.UnmarshalBody(resp, &responseValue)
 	return &responseValue, err
 }

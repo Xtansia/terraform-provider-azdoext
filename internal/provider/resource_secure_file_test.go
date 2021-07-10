@@ -33,11 +33,6 @@ func TestAccResourceSecureFile(t *testing.T) {
 						"azdoext_secure_file.foo", "name", regexp.MustCompile("^foo")),
 				),
 			},
-			{
-				ResourceName:      "azdoext_secure_file.foo",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
@@ -47,6 +42,7 @@ func testAccResourceSecureFileConfig(projectId string) string {
 resource "azdoext_secure_file" "foo" {
   project_id = "%s"
   name = "foobar"
+  content = "Hello World"
 }
 `, projectId)
 }
