@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/Xtansia/terraform-provider-azdoext/internal/client"
 	"github.com/Xtansia/terraform-provider-azdoext/internal/utils"
 )
 
@@ -72,10 +73,12 @@ func New(version string) func() *schema.Provider {
 	}
 }
 
-type apiClient struct {
-}
-
 func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	terraformVersion := p.TerraformVersion
+	if terraformVersion == "" {
+		terraformVersion = "0.11+compatible"
+	}
+
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		orgServiceUrl := d.Get(argOrgServiceUrl).(string)
 		personalAccessToken := d.Get(argPersonalAccessToken).(string)
@@ -101,6 +104,23 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 			return nil, diags
 		}
 
-		return &apiClient{}, nil
+		options := client.ClientOptions{
+			OrganisationUrl: orgServiceUrl,
+			PersonalAccessToken: personalAccessToken,
+			ProviderVersion: version,
+			TerraformVersion: terraformVersion,
+		}
+
+		clients, err := options.Clients(ctx)
+
+		if err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary: "Error initialising Azure DevOps clients",
+			})
+			return nil, diags
+		}
+
+		return clients, nil
 	}
 }
