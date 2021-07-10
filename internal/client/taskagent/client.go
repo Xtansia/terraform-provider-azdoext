@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	SecureFilesLocationId, _ = uuid.Parse("adcfd8bc-b184-43ba-bd84-7c8c6a2ff421")
+	SecureFilesLocationId = uuid.MustParse("adcfd8bc-b184-43ba-bd84-7c8c6a2ff421")
 )
 
 type Client interface {

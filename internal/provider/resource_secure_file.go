@@ -189,8 +189,8 @@ func resourceSecureFileDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 func flattenSecureFile(d *schema.ResourceData, secureFile *taskagent.SecureFile, projectId *string) {
 	d.SetId(secureFile.Id.String())
-	d.Set(sfName, *secureFile.Name)
-	d.Set(sfProjectId, projectId)
+	_ = d.Set(sfName, *secureFile.Name)
+	_ = d.Set(sfProjectId, projectId)
 }
 
 func parseSecureFileAndProjectIds(d *schema.ResourceData) (*uuid.UUID, *string, error) {

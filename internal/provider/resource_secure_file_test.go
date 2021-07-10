@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -18,6 +19,8 @@ func preCheckProject(t *testing.T) {
 
 func TestAccResourceSecureFile(t *testing.T) {
 	projectId := os.Getenv("AZDO_TEST_PROJECT_ID")
+	id, _ := uuid.NewRandom()
+	fileName := fmt.Sprintf("%s.txt", id)
 
 	resource.UnitTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -27,22 +30,22 @@ func TestAccResourceSecureFile(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceSecureFileConfig(projectId),
+				Config: testAccResourceSecureFileConfig(projectId, fileName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
-						"azdoext_secure_file.foo", "name", regexp.MustCompile("^foo")),
+						"azdoext_secure_file.foo", "name", regexp.MustCompile("^" + id.String())),
 				),
 			},
 		},
 	})
 }
 
-func testAccResourceSecureFileConfig(projectId string) string {
+func testAccResourceSecureFileConfig(projectId string, fileName string) string {
 	return fmt.Sprintf(`
 resource "azdoext_secure_file" "foo" {
   project_id = "%s"
-  name = "foobar"
+  name = "%s"
   content = "Hello World"
 }
-`, projectId)
+`, projectId, fileName)
 }
