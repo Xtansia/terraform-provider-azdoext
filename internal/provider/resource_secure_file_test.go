@@ -36,6 +36,12 @@ func TestAccResourceSecureFile(t *testing.T) {
 						"azdoext_secure_file.foo", "name", regexp.MustCompile("^"+id.String())),
 				),
 			},
+			{
+				Config: testAccResourceSecureFileConfig(projectId, "foo-" + fileName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr(
+						"azdoext_secure_file.foo", "name", regexp.MustCompile("^foo-"))),
+			},
 		},
 	})
 }
