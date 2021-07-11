@@ -47,7 +47,7 @@ jobs:
         if [[ -z $(git status --porcelain) ]]; then
           echo "Git directory is clean."
         else
-          echo "Git is dirty. Run `go mod tidy`, `go generate ./...` and `gofmt -w .` locally and commit any formatting fixes or generated code."
+          echo 'Git is dirty. Run `go mod tidy`, `go generate ./...` and `gofmt -w .` locally and commit any formatting fixes or generated code.'
           git status --porcelain
           exit 1
         fi
