@@ -104,7 +104,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 			return nil, diags
 		}
 
-		options := client.ClientOptions{
+		options := client.Options{
 			OrganisationUrl:     orgServiceUrl,
 			PersonalAccessToken: personalAccessToken,
 			ProviderVersion:     version,

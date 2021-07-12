@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/microsoft/azure-devops-go-api/azuredevops/build"
 
 	"github.com/Xtansia/terraform-provider-azdoext/internal/client"
 	"github.com/Xtansia/terraform-provider-azdoext/internal/client/taskagent"
@@ -19,6 +20,7 @@ const (
 	sfName          = "name"
 	sfContent       = "content"
 	sfContentBase64 = "content_base64"
+	sfAllowAccess   = "allow_access"
 )
 
 const (
@@ -66,6 +68,12 @@ func resourceSecureFile() *schema.Resource {
 				ConflictsWith: []string{sfContent},
 				ValidateFunc:  utils.StringIsBase64EncodedAndNotEmpty,
 			},
+			sfAllowAccess: {
+				Description: "Whether to allow all pipelines access to this resource.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+			},
 			"id": {
 				Description: "The ID of this resource.",
 				Type:        schema.TypeString,
@@ -103,6 +111,17 @@ func resourceSecureFileCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	flattenSecureFile(d, createdSecureFile, &projectId)
 
+	definitionResources := expandAllowAccess(d, createdSecureFile)
+	definitionResourceReferences, err := clients.BuildClient.AuthorizeProjectResources(ctx, build.AuthorizeProjectResourcesArgs{
+		Project:   &projectId,
+		Resources: &definitionResources,
+	})
+	if err != nil {
+		return diag.Errorf("Error creating definitionResourceReference Azure DevOps object: %+v", err)
+	}
+
+	flattenAllowAccess(d, definitionResourceReferences)
+
 	return resourceSecureFileRead(ctx, d, meta)
 }
 
@@ -134,6 +153,20 @@ func resourceSecureFileRead(ctx context.Context, d *schema.ResourceData, meta in
 
 	flattenSecureFile(d, secureFile, projectId)
 
+	resourceRefType := "securefile"
+	secFileId := secureFileId.String()
+
+	projectResources, err := clients.BuildClient.GetProjectResources(ctx, build.GetProjectResourcesArgs{
+		Project: projectId,
+		Type:    &resourceRefType,
+		Id:      &secFileId,
+	})
+	if err != nil {
+		return diag.Errorf("Error looking up project resources given ID (%v) and project ID (%v): %v", secureFileId, projectId, err)
+	}
+
+	flattenAllowAccess(d, projectResources)
+
 	return nil
 }
 
@@ -163,6 +196,17 @@ func resourceSecureFileUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	flattenSecureFile(d, updatedSecureFile, projectId)
 
+	definitionResources := expandAllowAccess(d, updatedSecureFile)
+	definitionResourceReferences, err := clients.BuildClient.AuthorizeProjectResources(ctx, build.AuthorizeProjectResourcesArgs{
+		Project:   projectId,
+		Resources: &definitionResources,
+	})
+	if err != nil {
+		return diag.Errorf("Error creating definitionResourceReference Azure DevOps object: %+v", err)
+	}
+
+	flattenAllowAccess(d, definitionResourceReferences)
+
 	return resourceSecureFileRead(ctx, d, meta)
 }
 
@@ -172,6 +216,25 @@ func resourceSecureFileDelete(ctx context.Context, d *schema.ResourceData, meta 
 	secureFileId, projectId, err := parseSecureFileAndProjectIds(d)
 	if err != nil {
 		return diag.Errorf(invalidSecureFileIdErrorMessageFormat, err)
+	}
+
+	resourceRefType := "securefile"
+	secFileId := secureFileId.String()
+	resourceRefName := ""
+	authorized := false
+	_, err = clients.BuildClient.AuthorizeProjectResources(ctx, build.AuthorizeProjectResourcesArgs{
+		Project: projectId,
+		Resources: &[]build.DefinitionResourceReference{
+			{
+				Type:       &resourceRefType,
+				Id:         &secFileId,
+				Name:       &resourceRefName,
+				Authorized: &authorized,
+			},
+		},
+	})
+	if err != nil {
+		return diag.Errorf("Error deleting the allow access definitionResource for secure file ID (%v) and project ID (%v): %v", secureFileId, projectId, err)
 	}
 
 	err = clients.TaskAgentClient.DeleteSecureFile(
@@ -202,4 +265,32 @@ func parseSecureFileAndProjectIds(d *schema.ResourceData) (*uuid.UUID, *string, 
 	projectId := d.Get(sfProjectId).(string)
 
 	return &secureFileId, &projectId, nil
+}
+
+func expandAllowAccess(d *schema.ResourceData, secureFile *taskagent.SecureFile) []build.DefinitionResourceReference {
+	resourceRefType := "securefile"
+	secureFileId := secureFile.Id.String()
+	authorized := d.Get(sfAllowAccess).(bool)
+
+	return []build.DefinitionResourceReference{
+		{
+			Type:       &resourceRefType,
+			Id:         &secureFileId,
+			Name:       secureFile.Name,
+			Authorized: &authorized,
+		},
+	}
+}
+
+func flattenAllowAccess(d *schema.ResourceData, definitionResources *[]build.DefinitionResourceReference) {
+	secureFileId := d.Id()
+	var allowAccess = false
+	if definitionResources != nil {
+		for _, resource := range *definitionResources {
+			if secureFileId == *resource.Id {
+				allowAccess = *resource.Authorized
+			}
+		}
+	}
+	_ = d.Set(sfAllowAccess, allowAccess)
 }

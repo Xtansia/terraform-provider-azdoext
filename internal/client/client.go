@@ -7,11 +7,12 @@ import (
 	"strings"
 
 	"github.com/microsoft/azure-devops-go-api/azuredevops"
+	"github.com/microsoft/azure-devops-go-api/azuredevops/build"
 
 	"github.com/Xtansia/terraform-provider-azdoext/internal/client/taskagent"
 )
 
-type ClientOptions struct {
+type Options struct {
 	OrganisationUrl     string
 	PersonalAccessToken string
 	ProviderVersion     string
@@ -20,9 +21,10 @@ type ClientOptions struct {
 
 type Clients struct {
 	TaskAgentClient taskagent.Client
+	BuildClient     build.Client
 }
 
-func (o *ClientOptions) Clients(ctx context.Context) (*Clients, error) {
+func (o *Options) Clients(ctx context.Context) (*Clients, error) {
 	if strings.EqualFold(o.OrganisationUrl, "") {
 		return nil, fmt.Errorf("url of the Azure DevOps is required")
 	}
@@ -38,12 +40,18 @@ func (o *ClientOptions) Clients(ctx context.Context) (*Clients, error) {
 		return nil, err
 	}
 
+	buildClient, err := build.NewClient(ctx, connection)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Clients{
 		TaskAgentClient: taskAgentClient,
+		BuildClient:     buildClient,
 	}, nil
 }
 
-func (o *ClientOptions) setUserAgent(connection *azuredevops.Connection) {
+func (o *Options) setUserAgent(connection *azuredevops.Connection) {
 	parts := []string{
 		connection.UserAgent,
 		fmt.Sprintf("terraform-provider-azdoext/%s (+https://registry.terraform.io/providers/Xtansia/azdoext)", o.ProviderVersion),
