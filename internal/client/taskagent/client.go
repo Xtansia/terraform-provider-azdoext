@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	ApiVersion61Preview1            = "6.1-preview.1"
+	ApiVersion50                    = "5.0"
 	MediaTypeApplicationOctetStream = "application/octet-stream"
 )
 
@@ -53,7 +53,7 @@ func (client *ClientImpl) DeleteSecureFile(ctx context.Context, args DeleteSecur
 	routeValues["secureFileId"] = (*args.SecureFileId).String()
 
 	_, err := client.Client.Send(
-		ctx, http.MethodDelete, SecureFilesLocationId, ApiVersion61Preview1, routeValues, nil, nil, "",
+		ctx, http.MethodDelete, SecureFilesLocationId, ApiVersion50, routeValues, nil, nil, "",
 		azuredevops.MediaTypeApplicationJson, nil,
 	)
 
@@ -86,7 +86,7 @@ func (client *ClientImpl) GetSecureFile(ctx context.Context, args GetSecureFileA
 	}
 
 	resp, err := client.Client.Send(
-		ctx, http.MethodGet, SecureFilesLocationId, ApiVersion61Preview1, routeValues, queryParams, nil, "",
+		ctx, http.MethodGet, SecureFilesLocationId, ApiVersion50, routeValues, queryParams, nil, "",
 		azuredevops.MediaTypeApplicationJson, nil,
 	)
 
@@ -127,7 +127,7 @@ func (client *ClientImpl) UpdateSecureFile(ctx context.Context, args UpdateSecur
 	}
 
 	resp, err := client.Client.Send(
-		ctx, http.MethodPatch, SecureFilesLocationId, ApiVersion61Preview1, routeValues, nil, bytes.NewReader(body), azuredevops.MediaTypeApplicationJson,
+		ctx, http.MethodPatch, SecureFilesLocationId, ApiVersion50, routeValues, nil, bytes.NewReader(body), azuredevops.MediaTypeApplicationJson,
 		azuredevops.MediaTypeApplicationJson, nil,
 	)
 
@@ -169,7 +169,7 @@ func (client *ClientImpl) UploadSecureFile(ctx context.Context, args UploadSecur
 	}
 
 	resp, err := client.Client.Send(
-		ctx, http.MethodPost, SecureFilesLocationId, ApiVersion61Preview1, routeValues, queryParams,
+		ctx, http.MethodPost, SecureFilesLocationId, ApiVersion50, routeValues, queryParams,
 		bytes.NewReader(*args.Content), MediaTypeApplicationOctetStream, azuredevops.MediaTypeApplicationJson, nil,
 	)
 	if err != nil {
