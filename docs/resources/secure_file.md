@@ -36,6 +36,7 @@ resource "azdoext_secure_file" "file" {
 
 ### Optional
 
+- **allow_access** (Boolean) Whether to allow all pipelines access to this resource. Defaults to `false`.
 - **content** (String, Sensitive) The plain-text content of the secure file. Use **content_base64** for binary content to avoid issues. Conflicts with **content_base64**.
 - **content_base64** (String, Sensitive) The base64 encoded content of the secure file. Conflicts with **content**.
 

@@ -30,14 +30,14 @@ func TestAccResourceSecureFile(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceSecureFileConfig(projectId, fileName),
+				Config: testAccResourceSecureFileConfig(projectId, fileName, false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"azdoext_secure_file.foo", "name", regexp.MustCompile("^"+id.String())),
 				),
 			},
 			{
-				Config: testAccResourceSecureFileConfig(projectId, "foo-"+fileName),
+				Config: testAccResourceSecureFileConfig(projectId, "foo-"+fileName, true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"azdoext_secure_file.foo", "name", regexp.MustCompile("^foo-"))),
@@ -46,12 +46,13 @@ func TestAccResourceSecureFile(t *testing.T) {
 	})
 }
 
-func testAccResourceSecureFileConfig(projectId string, fileName string) string {
+func testAccResourceSecureFileConfig(projectId string, fileName string, allowAccess bool) string {
 	return fmt.Sprintf(`
 resource "azdoext_secure_file" "foo" {
   project_id = "%s"
   name = "%s"
   content = "Hello World"
+  allow_access = %v
 }
-`, projectId, fileName)
+`, projectId, fileName, allowAccess)
 }
