@@ -74,11 +74,6 @@ func New(version string) func() *schema.Provider {
 }
 
 func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	terraformVersion := p.TerraformVersion
-	if terraformVersion == "" {
-		terraformVersion = "0.11+compatible"
-	}
-
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		orgServiceUrl := d.Get(argOrgServiceUrl).(string)
 		personalAccessToken := d.Get(argPersonalAccessToken).(string)
@@ -108,7 +103,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 			OrganisationUrl:     orgServiceUrl,
 			PersonalAccessToken: personalAccessToken,
 			ProviderVersion:     version,
-			TerraformVersion:    terraformVersion,
+			TerraformVersion:    p.TerraformVersion,
 		}
 
 		clients, err := options.Clients(ctx)
