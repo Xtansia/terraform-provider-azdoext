@@ -2,7 +2,9 @@ package provider
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -58,6 +60,7 @@ func resourceSecureFile() *schema.Resource {
 				Sensitive:     true,
 				ConflictsWith: []string{sfContentBase64},
 				ValidateFunc:  validation.StringIsNotEmpty,
+				StateFunc:     secureFileContentHash,
 			},
 			sfContentBase64: {
 				Description:   "The base64 encoded content of the secure file.",
@@ -67,6 +70,7 @@ func resourceSecureFile() *schema.Resource {
 				Sensitive:     true,
 				ConflictsWith: []string{sfContent},
 				ValidateFunc:  utils.StringIsBase64EncodedAndNotEmpty,
+				StateFunc:     secureFileContentHash,
 			},
 			sfAllowAccess: {
 				Description: "Whether to allow all pipelines access to this resource.",
@@ -293,4 +297,19 @@ func flattenAllowAccess(d *schema.ResourceData, definitionResources *[]build.Def
 		}
 	}
 	_ = d.Set(sfAllowAccess, allowAccess)
+}
+
+func secureFileContentHash(v interface{}) string {
+	switch v.(type) {
+	case string:
+		s := v.(string)
+		data, err := base64.StdEncoding.DecodeString(s)
+		if err != nil {
+			data = []byte(s)
+		}
+		hash := sha256.Sum256(data)
+		return hex.EncodeToString(hash[:])
+	default:
+		return ""
+	}
 }
