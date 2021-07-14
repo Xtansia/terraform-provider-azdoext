@@ -1,0 +1,39 @@
+name: Generate Release Pull Request
+
+on:
+  workflow_dispatch:
+    inputs:
+      next-version:
+        description: 'Next version use vX.Y.Z, patch, minor or major'
+        default: 'patch'
+        required: true
+
+jobs:
+  generate-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15.x
+    - uses: actions/checkout@v2
+    - name: Batch and Merge Changes
+      run: |
+        curl -sSLO https://github.com/miniscruff/changie/releases/download/v0.7.0/changie_0.7.0_linux_amd64.deb \
+          && dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
+
+        changie batch ${{ github.event.inputs.next-version }}
+        changie merge
+        echo RELEASE_VERSION=$(changie latest) >> $GITHUB_ENV
+    - name: Get Latest Changes
+      id: changes
+      run: cat changes/${{ env.RELEASE_VERSION }}.md
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        commit-message: 'Rollup changelog for ${{ env.RELEASE_VERSION }}'
+        branch: release/${{ env.RELEASE_VERSION }}
+        delete-branch: true
+        base: main
+        title: 'Release ${{ env.RELEASE_VERSION }}'
+        body: ${{ steps.changes.outputs.stdout }}
