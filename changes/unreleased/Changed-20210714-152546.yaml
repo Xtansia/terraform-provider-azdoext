@@ -1,0 +1,4 @@
+kind: Changed
+body: '`azdoext_secure_file` now stores hash of content in state rather than full plaintext
+  content'
+time: 2021-07-14T15:25:46.3157716+12:00
