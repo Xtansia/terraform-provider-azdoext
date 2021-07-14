@@ -1,36 +1,50 @@
 name: Release
+
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ main ]
+    paths: [ CHANGELOG.md ]
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v2.3.4
-      -
-        name: Unshallow
-        run: git fetch --prune --unshallow
-      -
-        name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.14
-      -
-        name: Import GPG key
-        id: import_gpg
-        uses: hashicorp/ghaction-import-gpg@v2.1.0
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.PASSPHRASE }}
-      -
-        name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2.6.1
-        with:
-          version: latest
-          args: release --rm-dist
-        env:
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout
+      uses: actions/checkout@v2.3.4
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15.x
+    - name: Setup Changie
+      run: |
+        curl -sSLO https://github.com/miniscruff/changie/releases/download/v0.7.0/changie_0.7.0_linux_amd64.deb \
+          && dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
+
+        LATEST=$(changie latest)
+        echo GORELEASER_CURRENT_TAG=$LATEST >> $GITHUB_ENV
+        echo RELEASE_NOTES_PATH=changes/$LATEST.md >> $GITHUB_ENV
+    - name: Import GPG key
+      id: import_gpg
+      uses: hashicorp/ghaction-import-gpg@v2.1.0
+      env:
+        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        PASSPHRASE: ${{ secrets.PASSPHRASE }}
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v2.6.1
+      with:
+        version: latest
+        args: release --rm-dist --release-notes=${{ env.RELEASE_NOTES_PATH }}
+      env:
+        GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Merge Back To Develop
+      uses: actions/github-script@v4
+      with:
+        script: |
+          github.repos.merge({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            base: 'develop',
+            head: context.sha,
+            commit_message: 'Merge tag \'${{ env.GORELEASER_CURRENT_TAG }}\' into develop
+          })
