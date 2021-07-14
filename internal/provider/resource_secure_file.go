@@ -300,12 +300,11 @@ func flattenAllowAccess(d *schema.ResourceData, definitionResources *[]build.Def
 }
 
 func secureFileContentHash(v interface{}) string {
-	switch v.(type) {
+	switch v := v.(type) {
 	case string:
-		s := v.(string)
-		data, err := base64.StdEncoding.DecodeString(s)
+		data, err := base64.StdEncoding.DecodeString(v)
 		if err != nil {
-			data = []byte(s)
+			data = []byte(v)
 		}
 		hash := sha256.Sum256(data)
 		return hex.EncodeToString(hash[:])
