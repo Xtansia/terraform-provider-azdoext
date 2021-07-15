@@ -17,7 +17,7 @@ func azdoErr(sc *int, m *string) azuredevops.WrappedError {
 }
 
 func TestResponseWasNotFound(t *testing.T) {
-	test := func (input error, expected bool) func (*testing.T) {
+	test := func(input error, expected bool) func(*testing.T) {
 		return func(t *testing.T) {
 			res := ResponseWasNotFound(input)
 			require.Equal(t, expected, res)
@@ -29,12 +29,18 @@ func TestResponseWasNotFound(t *testing.T) {
 	t.Run("azdo_error_nil_status_and_message", test(azdoErr(nil, nil), false))
 	t.Run("azdo_error_not_found_status", test(azdoErr(NewInt(http.StatusNotFound), nil), true))
 	t.Run("azdo_error_bad_request_status_nil_message", test(azdoErr(NewInt(http.StatusBadRequest), nil), false))
-	t.Run("azdo_error_bad_request_status_irrelevant_message", test(azdoErr(NewInt(http.StatusBadRequest), NewString("irrelevant message")), false))
-	t.Run("azdo_error_bad_request_status_VS800075", test(azdoErr(NewInt(http.StatusBadRequest), NewString("something about VS800075")), true))
+	t.Run(
+		"azdo_error_bad_request_status_irrelevant_message",
+		test(azdoErr(NewInt(http.StatusBadRequest), NewString("irrelevant message")), false),
+	)
+	t.Run(
+		"azdo_error_bad_request_status_VS800075",
+		test(azdoErr(NewInt(http.StatusBadRequest), NewString("something about VS800075")), true),
+	)
 }
 
 func TestResponseWasStatusCode(t *testing.T) {
-	test := func (input error, expected bool) func (*testing.T) {
+	test := func(input error, expected bool) func(*testing.T) {
 		return func(t *testing.T) {
 			res := ResponseWasStatusCode(input, http.StatusConflict)
 			require.Equal(t, expected, res)
@@ -49,7 +55,7 @@ func TestResponseWasStatusCode(t *testing.T) {
 }
 
 func TestResponseContainsStatusMessage(t *testing.T) {
-	test := func (input error, expected bool) func (*testing.T) {
+	test := func(input error, expected bool) func(*testing.T) {
 		return func(t *testing.T) {
 			res := ResponseContainsStatusMessage(input, "some string")
 			require.Equal(t, expected, res)

@@ -16,7 +16,7 @@ func ResponseWasNotFound(err error) bool {
 	// Some APIs return 400 BadRequest with the VS800075 error message if
 	// DevOps Project doesn't exist. If parent project doesn't exist, all
 	// child resources are considered "doesn't exist".
-	if  ResponseWasStatusCode(err, http.StatusBadRequest) {
+	if ResponseWasStatusCode(err, http.StatusBadRequest) {
 		return ResponseContainsStatusMessage(err, "VS800075")
 	}
 	return false
