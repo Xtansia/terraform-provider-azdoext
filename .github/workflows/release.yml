@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
     paths: [ CHANGELOG.md ]
+  workflow_dispatch: {}
 
 jobs:
   goreleaser:
@@ -18,11 +19,16 @@ jobs:
     - name: Setup Changie
       run: |
         curl -sSLO https://github.com/miniscruff/changie/releases/download/v0.7.0/changie_0.7.0_linux_amd64.deb \
-          && dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
+          && sudo dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
 
         LATEST=$(changie latest)
         echo GORELEASER_CURRENT_TAG=$LATEST >> $GITHUB_ENV
         echo RELEASE_NOTES_PATH=changes/$LATEST.md >> $GITHUB_ENV
+    - name: Create Tag
+      run: |
+        set -ex
+        git tag ${{ env.GORELEASER_CURRENT_TAG }}
+        git push origin ${{ env.GORELEASER_CURRENT_TAG }}
     - name: Import GPG key
       id: import_gpg
       uses: hashicorp/ghaction-import-gpg@v2.1.0
@@ -44,7 +50,7 @@ jobs:
           github.repos.merge({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            base: 'develop',
+            base: "develop",
             head: context.sha,
-            commit_message: 'Merge tag \'${{ env.GORELEASER_CURRENT_TAG }}\' into develop
+            commit_message: "Merge tag '${{ env.GORELEASER_CURRENT_TAG }}' into develop"
           })
