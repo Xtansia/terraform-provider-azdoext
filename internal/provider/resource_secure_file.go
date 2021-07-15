@@ -23,6 +23,7 @@ const (
 	sfContent       = "content"
 	sfContentBase64 = "content_base64"
 	sfAllowAccess   = "allow_access"
+	sfProperties    = "properties"
 )
 
 const (
@@ -79,6 +80,14 @@ func resourceSecureFile() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			sfProperties: {
+				Description: "Properties assigned to the secure file.",
+				Type:        schema.TypeMap,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Optional: true,
+			},
 			"id": {
 				Description: "The ID of this resource.",
 				Type:        schema.TypeString,
@@ -91,8 +100,8 @@ func resourceSecureFile() *schema.Resource {
 func resourceSecureFileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	clients := meta.(*client.Clients)
 
+	secureFile := expandSecureFile(d)
 	projectId := d.Get(sfProjectId).(string)
-	name := d.Get(sfName).(string)
 	content := d.Get(sfContent).(string)
 	contentBase64 := d.Get(sfContentBase64).(string)
 
@@ -112,6 +121,11 @@ func resourceSecureFileCreate(ctx context.Context, d *schema.ResourceData, meta 
 	)
 	if err != nil {
 		return diag.Errorf("Error creating secure file in Azure DevOps: %+v", err)
+	}
+
+	createdSecureFile, err = updateSecureFile(clients, ctx, &projectId, createdSecureFile.Id, secureFile)
+	if err != nil {
+		return diag.Errorf("Error updating properties on secure file in Azure DevOps: %+v", err)
 	}
 
 	flattenSecureFile(d, createdSecureFile, &projectId)
@@ -187,18 +201,9 @@ func resourceSecureFileUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf(invalidSecureFileIdErrorMessageFormat, err)
 	}
 
-	name := d.Get(sfName).(string)
+	secureFile := expandSecureFile(d)
 
-	updatedSecureFile, err := clients.TaskAgentClient.UpdateSecureFile(
-		ctx,
-		taskagent.UpdateSecureFileArgs{
-			Project:      projectId,
-			SecureFileId: secureFileId,
-			SecureFile: &taskagent.SecureFile{
-				Name: &name,
-			},
-		})
-
+	updatedSecureFile, err := updateSecureFile(clients, ctx, projectId, secureFileId, secureFile)
 	if err != nil {
 		return diag.Errorf("Error updating secure file in Azure DevOps: %+v", err)
 	}
@@ -259,10 +264,36 @@ func resourceSecureFileDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
+func expandSecureFile(d *schema.ResourceData) taskagent.SecureFile {
+	name := d.Get(sfName).(string)
+	properties := map[string]string{}
+	for k, v := range d.Get(sfProperties).(map[string]interface{}) {
+		properties[k] = v.(string)
+	}
+	return taskagent.SecureFile{
+		Name:       &name,
+		Properties: &properties,
+	}
+}
+
 func flattenSecureFile(d *schema.ResourceData, secureFile *taskagent.SecureFile, projectId *string) {
 	d.SetId(secureFile.Id.String())
 	_ = d.Set(sfName, *secureFile.Name)
 	_ = d.Set(sfProjectId, projectId)
+	_ = d.Set(sfProperties, secureFile.Properties)
+}
+
+func updateSecureFile(
+	clients *client.Clients, ctx context.Context, projectId *string, secureFileId *uuid.UUID,
+	secureFile taskagent.SecureFile,
+) (*taskagent.SecureFile, error) {
+	return clients.TaskAgentClient.UpdateSecureFile(
+		ctx, taskagent.UpdateSecureFileArgs{
+			Project:      projectId,
+			SecureFileId: secureFileId,
+			SecureFile:   &secureFile,
+		},
+	)
 }
 
 func parseSecureFileAndProjectIds(d *schema.ResourceData) (*uuid.UUID, *string, error) {
