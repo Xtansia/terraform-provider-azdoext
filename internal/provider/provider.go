@@ -29,7 +29,7 @@ func init() {
 		}
 
 		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
-			conflictFields := utils.Map(
+			conflictFields := utils.MapStrings(
 				s.ConflictsWith, func(c string) string {
 					return fmt.Sprintf("**%s**", c)
 				},
