@@ -24,6 +24,11 @@ jobs:
         LATEST=$(changie latest)
         echo GORELEASER_CURRENT_TAG=$LATEST >> $GITHUB_ENV
         echo RELEASE_NOTES_PATH=changes/$LATEST.md >> $GITHUB_ENV
+    - name: Create Tag
+      run: |
+        set -ex
+        git tag ${{ env.GORELEASER_CURRENT_TAG }}
+        git push origin ${{ env.GORELEASER_CURRENT_TAG }}
     - name: Import GPG key
       id: import_gpg
       uses: hashicorp/ghaction-import-gpg@v2.1.0
@@ -45,7 +50,7 @@ jobs:
           github.repos.merge({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            base: 'develop',
+            base: "develop",
             head: context.sha,
-            commit_message: 'Merge tag \'${{ env.GORELEASER_CURRENT_TAG }}\' into develop
+            commit_message: "Merge tag '${{ env.GORELEASER_CURRENT_TAG }}' into develop"
           })
