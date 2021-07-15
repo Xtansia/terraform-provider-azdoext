@@ -1,0 +1,3 @@
+kind: Changed
+body: Allow `content` and `content_base64` to be empty on `azdoext_secure_file`
+time: 2021-07-15T14:22:16.4433355+12:00

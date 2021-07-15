@@ -56,20 +56,21 @@ func resourceSecureFile() *schema.Resource {
 				Description:   "The plain-text content of the secure file. Use **" + sfContentBase64 + "** for binary content to avoid issues.",
 				Type:          schema.TypeString,
 				Optional:      true,
+				Default:       "",
 				ForceNew:      true,
 				Sensitive:     true,
 				ConflictsWith: []string{sfContentBase64},
-				ValidateFunc:  validation.StringIsNotEmpty,
 				StateFunc:     secureFileContentHash,
 			},
 			sfContentBase64: {
 				Description:   "The base64 encoded content of the secure file.",
 				Type:          schema.TypeString,
 				Optional:      true,
+				Default:       "",
 				ForceNew:      true,
 				Sensitive:     true,
 				ConflictsWith: []string{sfContent},
-				ValidateFunc:  utils.StringIsBase64EncodedAndNotEmpty,
+				ValidateFunc:  utils.StringIsBase64Encoded,
 				StateFunc:     secureFileContentHash,
 			},
 			sfAllowAccess: {
@@ -98,10 +99,8 @@ func resourceSecureFileCreate(ctx context.Context, d *schema.ResourceData, meta 
 	var data []byte
 	if content != "" {
 		data = []byte(content)
-	} else if contentBase64 != "" {
-		data, _ = base64.StdEncoding.DecodeString(contentBase64)
 	} else {
-		return diag.Errorf("one of %q or %q must be set", sfContent, sfContentBase64)
+		data, _ = base64.StdEncoding.DecodeString(contentBase64)
 	}
 
 	createdSecureFile, err := clients.TaskAgentClient.UploadSecureFile(

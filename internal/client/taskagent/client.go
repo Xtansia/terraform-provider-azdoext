@@ -155,8 +155,8 @@ func (client *ClientImpl) UploadSecureFile(ctx context.Context, args UploadSecur
 	if args.Project == nil || *args.Project == "" {
 		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Project"}
 	}
-	if len(*args.Content) == 0 {
-		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Content"}
+	if args.Content == nil {
+		return nil, &azuredevops.ArgumentNilError{ArgumentName: "args.Content"}
 	}
 
 	routeValues := make(map[string]string)
