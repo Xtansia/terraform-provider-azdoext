@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
     paths: [ CHANGELOG.md ]
+  workflow_dispatch: {}
 
 jobs:
   goreleaser:
@@ -18,7 +19,7 @@ jobs:
     - name: Setup Changie
       run: |
         curl -sSLO https://github.com/miniscruff/changie/releases/download/v0.7.0/changie_0.7.0_linux_amd64.deb \
-          && dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
+          && sudo dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
 
         LATEST=$(changie latest)
         echo GORELEASER_CURRENT_TAG=$LATEST >> $GITHUB_ENV

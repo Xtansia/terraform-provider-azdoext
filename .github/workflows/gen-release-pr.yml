@@ -20,7 +20,7 @@ jobs:
     - name: Batch and Merge Changes
       run: |
         curl -sSLO https://github.com/miniscruff/changie/releases/download/v0.7.0/changie_0.7.0_linux_amd64.deb \
-          && dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
+          && sudo dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
 
         changie batch ${{ github.event.inputs.next-version }}
         changie merge
