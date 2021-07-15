@@ -127,8 +127,8 @@ func (client *ClientImpl) UpdateSecureFile(ctx context.Context, args UpdateSecur
 	}
 
 	resp, err := client.Client.Send(
-		ctx, http.MethodPatch, SecureFilesLocationId, ApiVersion50, routeValues, nil, bytes.NewReader(body), azuredevops.MediaTypeApplicationJson,
-		azuredevops.MediaTypeApplicationJson, nil,
+		ctx, http.MethodPatch, SecureFilesLocationId, ApiVersion50, routeValues, nil, bytes.NewReader(body),
+		azuredevops.MediaTypeApplicationJson, azuredevops.MediaTypeApplicationJson, nil,
 	)
 
 	if err != nil {
@@ -155,8 +155,8 @@ func (client *ClientImpl) UploadSecureFile(ctx context.Context, args UploadSecur
 	if args.Project == nil || *args.Project == "" {
 		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Project"}
 	}
-	if len(*args.Content) == 0 {
-		return nil, &azuredevops.ArgumentNilOrEmptyError{ArgumentName: "args.Content"}
+	if args.Content == nil {
+		return nil, &azuredevops.ArgumentNilError{ArgumentName: "args.Content"}
 	}
 
 	routeValues := make(map[string]string)

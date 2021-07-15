@@ -9,16 +9,14 @@ import (
 
 func ResponseWasNotFound(err error) bool {
 	// If API returns 404, resource was not found
-	statusNotFound := ResponseWasStatusCode(err, http.StatusNotFound)
-	if statusNotFound {
-		return statusNotFound
+	if ResponseWasStatusCode(err, http.StatusNotFound) {
+		return true
 	}
 
 	// Some APIs return 400 BadRequest with the VS800075 error message if
 	// DevOps Project doesn't exist. If parent project doesn't exist, all
 	// child resources are considered "doesn't exist".
-	statusBadRequest := ResponseWasStatusCode(err, http.StatusBadRequest)
-	if statusBadRequest {
+	if ResponseWasStatusCode(err, http.StatusBadRequest) {
 		return ResponseContainsStatusMessage(err, "VS800075")
 	}
 	return false
