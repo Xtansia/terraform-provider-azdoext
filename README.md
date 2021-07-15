@@ -1,5 +1,8 @@
 # terraform-provider-azdoext
 
+[![Tests](https://github.com/Xtansia/terraform-provider-azdoext/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Xtansia/terraform-provider-azdoext/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/Xtansia/terraform-provider-azdoext/branch/main/graph/badge.svg?token=UL1SU6ES0L)](https://codecov.io/gh/Xtansia/terraform-provider-azdoext)
+
 Resources currently unavailable
 in [microsoft/terraform-provider-azuredevops](https://github.com/microsoft/terraform-provider-azuredevops).
 
