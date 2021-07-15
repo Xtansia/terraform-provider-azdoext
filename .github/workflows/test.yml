@@ -2,10 +2,10 @@ name: Tests
 on:
   pull_request:
     paths-ignore:
-      - 'README.md'
+    - 'README.md'
   push:
     paths-ignore:
-      - 'README.md'
+    - 'README.md'
   # schedule:
   #   - cron: '0 13 * * *'
 jobs:
@@ -57,16 +57,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.15.x
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run linters
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.41
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15.x
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Run linters
+      uses: golangci/golangci-lint-action@v2
+      with:
+        version: v1.41
 
   test:
     name: Test
@@ -75,8 +75,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: [1.15.x]
-        terraform-version: [0.12.31, 0.15.5, 1.0.2]
+        go-version: [ 1.15.x ]
+        terraform-version: [ 0.12.31, 0.15.5, 1.0.2 ]
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go

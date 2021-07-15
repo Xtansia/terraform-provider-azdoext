@@ -94,8 +94,8 @@ func resourceSecureFileCreate(ctx context.Context, d *schema.ResourceData, meta 
 	name := d.Get(sfName).(string)
 	content := d.Get(sfContent).(string)
 	contentBase64 := d.Get(sfContentBase64).(string)
-	var data []byte
 
+	var data []byte
 	if content != "" {
 		data = []byte(content)
 	} else if contentBase64 != "" {
@@ -104,11 +104,13 @@ func resourceSecureFileCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("one of %q or %q must be set", sfContent, sfContentBase64)
 	}
 
-	createdSecureFile, err := clients.TaskAgentClient.UploadSecureFile(ctx, taskagent.UploadSecureFileArgs{
-		Project: &projectId,
-		Name:    &name,
-		Content: &data,
-	})
+	createdSecureFile, err := clients.TaskAgentClient.UploadSecureFile(
+		ctx, taskagent.UploadSecureFileArgs{
+			Project: &projectId,
+			Name:    secureFile.Name,
+			Content: &data,
+		},
+	)
 	if err != nil {
 		return diag.Errorf("Error creating secure file in Azure DevOps: %+v", err)
 	}
@@ -116,10 +118,7 @@ func resourceSecureFileCreate(ctx context.Context, d *schema.ResourceData, meta 
 	flattenSecureFile(d, createdSecureFile, &projectId)
 
 	definitionResources := expandAllowAccess(d, createdSecureFile)
-	definitionResourceReferences, err := clients.BuildClient.AuthorizeProjectResources(ctx, build.AuthorizeProjectResourcesArgs{
-		Project:   &projectId,
-		Resources: &definitionResources,
-	})
+	definitionResourceReferences, err := authorizeProjectReferences(clients, ctx, &projectId, definitionResources)
 	if err != nil {
 		return diag.Errorf("Error creating definitionResourceReference Azure DevOps object: %+v", err)
 	}
@@ -142,13 +141,16 @@ func resourceSecureFileRead(ctx context.Context, d *schema.ResourceData, meta in
 		taskagent.GetSecureFileArgs{
 			Project:      projectId,
 			SecureFileId: secureFileId,
-		})
+		},
+	)
 	if err != nil {
 		if utils.ResponseWasNotFound(err) {
 			d.SetId("")
 			return nil
 		}
-		return diag.Errorf("Error looking up secure file given ID (%v) and project ID (%v): %v", secureFileId, projectId, err)
+		return diag.Errorf(
+			"Error looking up secure file given ID (%v) and project ID (%v): %v", secureFileId, projectId, err,
+		)
 	}
 	if secureFile.Id == nil {
 		d.SetId("")
@@ -160,13 +162,17 @@ func resourceSecureFileRead(ctx context.Context, d *schema.ResourceData, meta in
 	resourceRefType := "securefile"
 	secFileId := secureFileId.String()
 
-	projectResources, err := clients.BuildClient.GetProjectResources(ctx, build.GetProjectResourcesArgs{
-		Project: projectId,
-		Type:    &resourceRefType,
-		Id:      &secFileId,
-	})
+	projectResources, err := clients.BuildClient.GetProjectResources(
+		ctx, build.GetProjectResourcesArgs{
+			Project: projectId,
+			Type:    &resourceRefType,
+			Id:      &secFileId,
+		},
+	)
 	if err != nil {
-		return diag.Errorf("Error looking up project resources given ID (%v) and project ID (%v): %v", secureFileId, projectId, err)
+		return diag.Errorf(
+			"Error looking up project resources given ID (%v) and project ID (%v): %v", secureFileId, projectId, err,
+		)
 	}
 
 	flattenAllowAccess(d, projectResources)
@@ -201,10 +207,7 @@ func resourceSecureFileUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	flattenSecureFile(d, updatedSecureFile, projectId)
 
 	definitionResources := expandAllowAccess(d, updatedSecureFile)
-	definitionResourceReferences, err := clients.BuildClient.AuthorizeProjectResources(ctx, build.AuthorizeProjectResourcesArgs{
-		Project:   projectId,
-		Resources: &definitionResources,
-	})
+	definitionResourceReferences, err := authorizeProjectReferences(clients, ctx, projectId, definitionResources)
 	if err != nil {
 		return diag.Errorf("Error creating definitionResourceReference Azure DevOps object: %+v", err)
 	}
@@ -226,9 +229,8 @@ func resourceSecureFileDelete(ctx context.Context, d *schema.ResourceData, meta 
 	secFileId := secureFileId.String()
 	resourceRefName := ""
 	authorized := false
-	_, err = clients.BuildClient.AuthorizeProjectResources(ctx, build.AuthorizeProjectResourcesArgs{
-		Project: projectId,
-		Resources: &[]build.DefinitionResourceReference{
+	_, err = authorizeProjectReferences(
+		clients, ctx, projectId, []build.DefinitionResourceReference{
 			{
 				Type:       &resourceRefType,
 				Id:         &secFileId,
@@ -236,9 +238,12 @@ func resourceSecureFileDelete(ctx context.Context, d *schema.ResourceData, meta 
 				Authorized: &authorized,
 			},
 		},
-	})
+	)
 	if err != nil {
-		return diag.Errorf("Error deleting the allow access definitionResource for secure file ID (%v) and project ID (%v): %v", secureFileId, projectId, err)
+		return diag.Errorf(
+			"Error deleting the allow access definitionResource for secure file ID (%v) and project ID (%v): %v",
+			secureFileId, projectId, err,
+		)
 	}
 
 	err = clients.TaskAgentClient.DeleteSecureFile(
@@ -246,7 +251,8 @@ func resourceSecureFileDelete(ctx context.Context, d *schema.ResourceData, meta 
 		taskagent.DeleteSecureFileArgs{
 			Project:      projectId,
 			SecureFileId: secureFileId,
-		})
+		},
+	)
 	if err != nil {
 		return diag.Errorf("Error deleting secure file in Azure DevOps: %+v", err)
 	}
@@ -297,6 +303,18 @@ func flattenAllowAccess(d *schema.ResourceData, definitionResources *[]build.Def
 		}
 	}
 	_ = d.Set(sfAllowAccess, allowAccess)
+}
+
+func authorizeProjectReferences(
+	clients *client.Clients, ctx context.Context, projectId *string,
+	definitionResources []build.DefinitionResourceReference,
+) (*[]build.DefinitionResourceReference, error) {
+	return clients.BuildClient.AuthorizeProjectResources(
+		ctx, build.AuthorizeProjectResourcesArgs{
+			Project:   projectId,
+			Resources: &definitionResources,
+		},
+	)
 }
 
 func secureFileContentHash(v interface{}) string {

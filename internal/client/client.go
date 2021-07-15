@@ -54,7 +54,10 @@ func (o *Options) Clients(ctx context.Context) (*Clients, error) {
 func (o *Options) setUserAgent(connection *azuredevops.Connection) {
 	parts := []string{
 		connection.UserAgent,
-		fmt.Sprintf("terraform-provider-azdoext/%s (+https://registry.terraform.io/providers/Xtansia/azdoext)", o.ProviderVersion),
+		fmt.Sprintf(
+			"terraform-provider-azdoext/%s (+https://registry.terraform.io/providers/Xtansia/azdoext)",
+			o.ProviderVersion,
+		),
 		fmt.Sprintf("Terraform/%s (+https://www.terraform.io)", o.TerraformVersion),
 	}
 

@@ -23,5 +23,8 @@ func TestHumaniseList_TwoInputs(t *testing.T) {
 
 func TestHumaniseList_ManyInputs(t *testing.T) {
 	result := HumaniseList([]string{"foobar", "bazbar", "barrybar", "garrybar"})
-	require.Equal(t, "foobar, bazbar, barrybar & garrybar", result, "Result should be all except last joined by command and last joined by an ampersand")
+	require.Equal(
+		t, "foobar, bazbar, barrybar & garrybar", result,
+		"Result should be all except last joined by command and last joined by an ampersand",
+	)
 }

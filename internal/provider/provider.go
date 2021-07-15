@@ -29,9 +29,11 @@ func init() {
 		}
 
 		if s.ConflictsWith != nil && len(s.ConflictsWith) > 0 {
-			conflictFields := utils.Map(s.ConflictsWith, func(c string) string {
-				return fmt.Sprintf("**%s**", c)
-			})
+			conflictFields := utils.Map(
+				s.ConflictsWith, func(c string) string {
+					return fmt.Sprintf("**%s**", c)
+				},
+			)
 			desc += fmt.Sprintf(" Conflicts with %s.", utils.HumaniseList(conflictFields))
 		}
 
@@ -73,7 +75,9 @@ func New(version string) func() *schema.Provider {
 	}
 }
 
-func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (
+	interface{}, diag.Diagnostics,
+) {
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		orgServiceUrl := d.Get(argOrgServiceUrl).(string)
 		personalAccessToken := d.Get(argPersonalAccessToken).(string)
@@ -81,18 +85,22 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		var diags diag.Diagnostics
 
 		if strings.EqualFold(orgServiceUrl, "") {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Organisation service URL not set",
-				Detail:   "The Azure DevOps organisation service URL must be set",
-			})
+			diags = append(
+				diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  "Organisation service URL not set",
+					Detail:   "The Azure DevOps organisation service URL must be set",
+				},
+			)
 		}
 		if strings.EqualFold(personalAccessToken, "") {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Personal access token not set",
-				Detail:   "The Azure DevOps personal access token must be set",
-			})
+			diags = append(
+				diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  "Personal access token not set",
+					Detail:   "The Azure DevOps personal access token must be set",
+				},
+			)
 		}
 
 		if len(diags) > 0 {
@@ -109,10 +117,12 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		clients, err := options.Clients(ctx)
 
 		if err != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Error initialising Azure DevOps clients",
-			})
+			diags = append(
+				diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  "Error initialising Azure DevOps clients",
+				},
+			)
 			return nil, diags
 		}
 
