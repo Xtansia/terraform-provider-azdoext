@@ -44,7 +44,7 @@ jobs:
         GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Merge Back To Develop
-      uses: actions/github-script@v4
+      uses: actions/github-script@v5
       with:
         script: |
           github.repos.merge({
