@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), and is generated
 by [Changie](https://github.com/miniscruff/changie).
 
+## v0.3.1 - 2022-02-16
+
+### Changed
+
+* Updated Go to 1.17 to allow building darwin_arm64
+
 ## v0.3.0 - 2021-07-15
 
 ### Added
