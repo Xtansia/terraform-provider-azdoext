@@ -43,14 +43,3 @@ jobs:
       env:
         GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Merge Back To Develop
-      uses: actions/github-script@v4
-      with:
-        script: |
-          github.repos.merge({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            base: "develop",
-            head: context.sha,
-            commit_message: "Merge tag '${{ env.GORELEASER_CURRENT_TAG }}' into develop"
-          })

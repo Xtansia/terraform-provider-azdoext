@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/microsoft/azure-devops-go-api/azuredevops"
+	"github.com/microsoft/azure-devops-go-api/azuredevops/v6"
 	"github.com/stretchr/testify/require"
 )
 
