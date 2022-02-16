@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/microsoft/azure-devops-go-api/azuredevops"
+	"github.com/microsoft/azure-devops-go-api/azuredevops/v6"
 )
 
 func ResponseWasNotFound(err error) bool {
