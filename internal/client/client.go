@@ -3,8 +3,9 @@ package client
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/microsoft/azure-devops-go-api/azuredevops/v6"
 	"github.com/microsoft/azure-devops-go-api/azuredevops/v6/build"
@@ -33,7 +34,7 @@ func (o *Options) Clients(ctx context.Context) (*Clients, error) {
 	}
 
 	connection := azuredevops.NewPatConnection(o.OrganisationUrl, o.PersonalAccessToken)
-	o.setUserAgent(connection)
+	o.setUserAgent(ctx, connection)
 
 	taskAgentClient, err := taskagent.NewClient(ctx, connection)
 	if err != nil {
@@ -51,7 +52,7 @@ func (o *Options) Clients(ctx context.Context) (*Clients, error) {
 	}, nil
 }
 
-func (o *Options) setUserAgent(connection *azuredevops.Connection) {
+func (o *Options) setUserAgent(ctx context.Context, connection *azuredevops.Connection) {
 	parts := []string{
 		connection.UserAgent,
 		fmt.Sprintf(
@@ -63,5 +64,5 @@ func (o *Options) setUserAgent(connection *azuredevops.Connection) {
 
 	connection.UserAgent = strings.TrimSpace(strings.Join(parts, " "))
 
-	log.Printf("[DEBUG] Azure DevOps Client User Agent: %s\n", connection.UserAgent)
+	tflog.Debug(ctx, "Azure DevOps Client User Agent: %s\n", connection.UserAgent)
 }
