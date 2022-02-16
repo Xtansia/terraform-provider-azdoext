@@ -1,6 +1,6 @@
 module github.com/Xtansia/terraform-provider-azdoext
 
-go 1.15
+go 1.17
 
 require (
 	github.com/google/uuid v1.3.0
