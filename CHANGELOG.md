@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), and is generated
 by [Changie](https://github.com/miniscruff/changie).
 
+## v0.3.2 - 2022-02-16
+
+### Changed
+
+* Updated `github.com/microsoft/azure-devops-go-api/azuredevops` from `v1.0.0-b5` to `v6.0.1`
+* Updated `github.com/hashicorp/terraform-plugin-sdk/v2` from `v2.7.0` to `v2.10.1`
+* Updated `github.com/hashicorp/terraform-plugin-docs` from `v0.4.0` to `v0.5.1`
+* Use tflog instead of log
+
 ## v0.3.1 - 2022-02-16
 
 ### Changed
