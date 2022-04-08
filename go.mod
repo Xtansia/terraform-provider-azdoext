@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/terraform-plugin-log v0.3.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.13.0
 	github.com/microsoft/azure-devops-go-api/azuredevops/v6 v6.0.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 )
 
 require (
