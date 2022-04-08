@@ -33,5 +33,5 @@ provider "azdoext" {
 
 ### Optional
 
-- **org_service_url** (String) The url of the Azure DevOps instance which should be used. Can also be set via the `AZDO_ORG_SERVICE_URL` environment variable.
-- **personal_access_token** (String, Sensitive) The personal access token which should be used. Can also be set via the `AZDO_PERSONAL_ACCESS_TOKEN` environment variable.
+- `org_service_url` (String) The url of the Azure DevOps instance which should be used. Can also be set via the `AZDO_ORG_SERVICE_URL` environment variable.
+- `personal_access_token` (String, Sensitive) The personal access token which should be used. Can also be set via the `AZDO_PERSONAL_ACCESS_TOKEN` environment variable.

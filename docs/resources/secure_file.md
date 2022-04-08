@@ -31,18 +31,18 @@ resource "azdoext_secure_file" "file" {
 
 ### Required
 
-- **name** (String) The name of the secure file.
-- **project_id** (String) The ID of the Azure DevOps project the secure file belongs to.
+- `name` (String) The name of the secure file.
+- `project_id` (String) The ID of the Azure DevOps project the secure file belongs to.
 
 ### Optional
 
-- **allow_access** (Boolean) Whether to allow all pipelines access to this resource. Defaults to `false`.
-- **content** (String, Sensitive) The plain-text content of the secure file. Use **content_base64** for binary content to avoid issues. Defaults to ``. Conflicts with **content_base64**.
-- **content_base64** (String, Sensitive) The base64 encoded content of the secure file. Defaults to ``. Conflicts with **content**.
-- **properties** (Map of String) Properties assigned to the secure file.
+- `allow_access` (Boolean) Whether to allow all pipelines access to this resource. Defaults to `false`.
+- `content` (String, Sensitive) The plain-text content of the secure file. Use **content_base64** for binary content to avoid issues. Defaults to ``. Conflicts with **content_base64**.
+- `content_base64` (String, Sensitive) The base64 encoded content of the secure file. Defaults to ``. Conflicts with **content**.
+- `properties` (Map of String) Properties assigned to the secure file.
 
 ### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 
