@@ -64,5 +64,9 @@ func (o *Options) setUserAgent(ctx context.Context, connection *azuredevops.Conn
 
 	connection.UserAgent = strings.TrimSpace(strings.Join(parts, " "))
 
-	tflog.Debug(ctx, "Azure DevOps Client User Agent: %s\n", connection.UserAgent)
+	tflog.Debug(
+		ctx, "Azure DevOps Client User Agent", map[string]interface{}{
+			"userAgent": connection.UserAgent,
+		},
+	)
 }
