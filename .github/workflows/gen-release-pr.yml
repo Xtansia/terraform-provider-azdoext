@@ -15,12 +15,12 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.17.x
+        go-version: 1.18.x
     - uses: actions/checkout@v3
     - name: Batch and Merge Changes
       run: |
-        curl -sSLO https://github.com/miniscruff/changie/releases/download/v0.7.0/changie_0.7.0_linux_amd64.deb \
-          && sudo dpkg -i changie_0.7.0_linux_amd64.deb && rm changie_0.7.0_linux_amd64.deb
+        curl -sSLO https://github.com/miniscruff/changie/releases/download/v1.11.1/changie_1.11.1_linux_amd64.deb \
+          && sudo dpkg -i changie_1.11.1_linux_amd64.deb && rm changie_1.11.1_linux_amd64.deb
 
         changie batch ${{ github.event.inputs.next-version }}
         changie merge
