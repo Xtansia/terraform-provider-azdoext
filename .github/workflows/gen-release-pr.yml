@@ -29,7 +29,7 @@ jobs:
       id: changes
       run: cat changes/${{ env.RELEASE_VERSION }}.md
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v4.2.3
+      uses: peter-evans/create-pull-request@v5.0.1
       with:
         commit-message: 'Rollup changelog for ${{ env.RELEASE_VERSION }}'
         branch: release/${{ env.RELEASE_VERSION }}
